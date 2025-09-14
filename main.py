@@ -1,15 +1,12 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import router
 from database import test_connection
 import os
 
 app = FastAPI(
-    title="PDF Storage API",
-    description="A simple API for storing, viewing, and downloading PDF files",
+    title="PDF Storage API - API Only",
+    description="A secure API for storing, viewing, and downloading PDF files. API key required for all operations.",
     version="1.0.0"
 )
 
@@ -22,9 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files and templates
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+# Mount static files and templates (removed for API-only access)
+# app.mount("/static", StaticFiles(directory="static"), name="static")
+# templates = Jinja2Templates(directory="templates")
 
 # Include API routes
 app.include_router(router)
@@ -34,10 +31,15 @@ app.include_router(router)
 async def health_check():
     return {"status": "healthy", "message": "PDF Storage API is running"}
 
-# Home route
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+# Home route - API only, no web interface
+@app.get("/")
+async def home():
+    return {
+        "message": "PDF Storage API - API Only Access",
+        "documentation": "/docs",
+        "api_key_endpoint": "/get-api-key",
+        "note": "This is an API-only service. Use the API endpoints with your API key."
+    }
 
 if __name__ == "__main__":
     import uvicorn
